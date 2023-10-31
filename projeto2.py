@@ -219,15 +219,20 @@ def eh_goban(arg):
             if len(lista_intersecoes_brancas) != 0:
                 for intersecao in lista_intersecoes_brancas:
                     if eh_intersecao(intersecao):
-                        if obtem_lin(intersecao) == num:
+                        if obtem_lin(intersecao) <= num:
                             if len(lista_intersecoes_pretas) != 0:
                                 for intersecao in lista_intersecoes_pretas:
                                     if eh_intersecao(intersecao):
-                                        if obtem_lin(intersecao) == num:
+                                        if obtem_lin(intersecao) <= num:
                                             return True
                             else:
                                 return True
             else:
+                if len(lista_intersecoes_pretas) != 0:
+                                for intersecao in lista_intersecoes_pretas:
+                                    if eh_intersecao(intersecao):
+                                        if obtem_lin(intersecao) <= num:
+                                            return True
                 return True
     return False
 
@@ -359,13 +364,14 @@ def calcula_pontos(goban):
     pontos_branco = pontos_total_pedras[0]
     pontos_preto = pontos_total_pedras[1]
     for territorio in obtem_territorios(goban):     #Território é de um jogador se a sua fronteira for ocupada apenas por pedras desse jogador
+        print(territorio)
         fronteira = obtem_fronteira(goban,territorio)
         if fronteira_eh_jogador(goban,fronteira):
-            simbolo_fronteira = obtem_pedra(goban,fronteira[0])
-            if simbolo_fronteira == "O":
-                pontos_branco += len(fronteira)
-            elif simbolo_fronteira == "X":
-                pontos_preto += len(fronteira)
+            simbolo_territorio = obtem_pedra(goban,fronteira[0])
+            if simbolo_territorio  == "O":
+                pontos_branco += len(territorio)
+            elif simbolo_territorio  == "X":
+                pontos_preto += len(territorio)
     return (pontos_branco,pontos_preto)
 
     
@@ -419,8 +425,8 @@ def turno_jogador(goban,pedra,goban_ilegal):
         jogada = input(f"Escreva uma intersecao ou 'P' para passar [{pedra_para_str(pedra)}]:")
         if jogada == "P":
             return False
-        elif eh_intersecao_valida(goban,str_para_intersecao(jogada)):
-            intersecao = str_para_intersecao(jogada)
+        intersecao = str_para_intersecao(jogada)
+        if eh_intersecao_valida(goban,intersecao):
             if eh_jogada_legal(goban,intersecao,pedra,goban_ilegal):
                 coloca_pedra(goban,intersecao,pedra)
                 return True
@@ -442,17 +448,32 @@ def go(dimensao,tuplo_brancas,tuplo_pretas):
         if intersecao in tuplo_brancas:
             raise ValueError ("go: argumentos invalidos")
     vezes_passadas = []
+    jogador = 0 
+    pontos_brancos = 0
+    pontos_pretos = 0
     while len(vezes_passadas) != 2:
-        if turno_jogador(goban,cria_pedra_preta(),cria_goban_vazio(dimensao)) == False:
-            vezes_passadas += [1,]
-            pontos_brancos = calcula_pontos(goban)[0]
-            pontos_pretos = calcula_pontos(goban)[1]
-        else:
-            vezes_passadas = []
-            pontos_brancos = calcula_pontos(goban)[0]
-            pontos_pretos = calcula_pontos(goban)[1]
         print(f"Branco (O) tem {pontos_brancos} pontos\nPreto (X) tem {pontos_pretos} pontos")
         print(goban_para_str(goban))
+        if jogador == 0:
+            if turno_jogador(goban,cria_pedra_preta(),cria_goban_vazio(dimensao)) == False:
+                vezes_passadas += [1,]
+                pontos_brancos = calcula_pontos(goban)[0]
+                pontos_pretos = calcula_pontos(goban)[1]
+            else:
+                vezes_passadas = []
+                pontos_brancos = calcula_pontos(goban)[0]
+                pontos_pretos = calcula_pontos(goban)[1]
+            jogador += 1 
+        else:
+            if turno_jogador(goban,cria_pedra_branca(),cria_goban_vazio(dimensao)) == False:
+                vezes_passadas += [1,]
+                pontos_brancos = calcula_pontos(goban)[0]
+                pontos_pretos = calcula_pontos(goban)[1]
+            else:
+                vezes_passadas = []
+                pontos_brancos = calcula_pontos(goban)[0]
+                pontos_pretos = calcula_pontos(goban)[1]
+            jogador = 0 
     if pontos_brancos > pontos_pretos:
         return True
     else:
