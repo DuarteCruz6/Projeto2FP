@@ -36,7 +36,7 @@ def obtem_lin(intersecao):
     :return: Integer
     """
 
-    return int(intersecao[1:])
+    return int(intersecao[1])
 
 def eh_intersecao(intersecao):
     """
