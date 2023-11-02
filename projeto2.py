@@ -89,8 +89,8 @@ def str_para_intersecao(string):
     :return: Tuple
     """
 
-    coluna = obtem_col(string)
-    linha = obtem_lin(string)
+    coluna = string[0]
+    linha = int(string[1:])
     return (coluna,linha)
 
 def obtem_intersecoes_adjacentes(intersecao,intersecao_max):
@@ -512,14 +512,17 @@ def gobans_iguais(goban1,goban2):
     :return: Boolean
     """
     if eh_goban(goban1) and eh_goban(goban2):
-        goban1_dimensao = goban1[1]
-        lista_intersecoes_brancas_goban1 = ordena_intersecoes(tuple(intersecao_branca_goban1) for intersecao_branca_goban1 in goban1[1])
-        lista_intersecoes_pretas_goban1 = ordena_intersecoes(tuple(intersecao_preta_goban1) for intersecao_preta_goban1 in goban1[2])
-        goban2_dimensao = goban2[0]
-        lista_intersecoes_brancas_goban2 = ordena_intersecoes(tuple(intersecao_branca_goban2) for intersecao_branca_goban2 in goban2[1])
-        lista_intersecoes_pretas_goban2 = ordena_intersecoes(tuple(intersecao_preta_goban2) for intersecao_preta_goban2 in goban2[2])
-        if goban1_dimensao == goban2_dimensao and lista_intersecoes_brancas_goban1 == lista_intersecoes_brancas_goban2 and lista_intersecoes_pretas_goban1 == lista_intersecoes_pretas_goban2:
+        if goban1 == goban2:
             return True
+        else:
+            goban1_dimensao = goban1[0]
+            lista_intersecoes_brancas_goban1 = ordena_intersecoes(tuple(intersecao_branca_goban1) for intersecao_branca_goban1 in goban1[1])
+            lista_intersecoes_pretas_goban1 = ordena_intersecoes(tuple(intersecao_preta_goban1) for intersecao_preta_goban1 in goban1[2])
+            goban2_dimensao = goban2[0]
+            lista_intersecoes_brancas_goban2 = ordena_intersecoes(tuple(intersecao_branca_goban2) for intersecao_branca_goban2 in goban2[1])
+            lista_intersecoes_pretas_goban2 = ordena_intersecoes(tuple(intersecao_preta_goban2) for intersecao_preta_goban2 in goban2[2])
+            if goban1_dimensao == goban2_dimensao and lista_intersecoes_brancas_goban1 == lista_intersecoes_brancas_goban2 and lista_intersecoes_pretas_goban1 == lista_intersecoes_pretas_goban2:
+                return True
     return False
 
 def goban_para_str(goban):
