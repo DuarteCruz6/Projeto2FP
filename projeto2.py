@@ -122,6 +122,8 @@ def cria_goban(num,tuplo_intersecoes_brancas,tuplo_intersecoes_pretas):
     if type(num) != int or num not in [9,13,19]:
         raise ValueError ("cria_goban: argumentos invalidos")
     for intersecao in tuplo_intersecoes_brancas:
+        if type(intersecao) != str and type(intersecao) != tuple:
+            raise ValueError ("cria_goban: argumentos invalidos")
         if len(intersecao) not in [2,3]:
             raise ValueError ("cria_goban: argumentos invalidos")
         if type(intersecao) == str:
@@ -134,6 +136,8 @@ def cria_goban(num,tuplo_intersecoes_brancas,tuplo_intersecoes_pretas):
         else:
             raise ValueError ("cria_goban: argumentos invalidos")
     for intersecao in tuplo_intersecoes_pretas:
+        if type(intersecao) != str and type(intersecao) != tuple:
+            raise ValueError ("cria_goban: argumentos invalidos")
         if len(intersecao) not in [2,3]:
             raise ValueError ("cria_goban: argumentos invalidos")
         if type(intersecao) == str:
@@ -222,6 +226,8 @@ def remove_cadeia(goban,cadeia):
     return goban
 
 def eh_goban(arg):
+    if type(arg) not in (tuple,list,dict,set):
+        return False
     if len(arg) == 3:      
         num = arg[0]
         lista_intersecoes_brancas = arg[1]
@@ -331,13 +337,15 @@ def obtem_adjacentes_diferentes(goban,tuplo_intersecoes):
         if intersecao in lista_intersecoes_brancas or intersecao in lista_intersecoes_pretas:
             adjacentes = obtem_intersecoes_adjacentes(intersecao,obtem_intersecao_maxima(goban))
             for intersecao_adjacente in adjacentes:
-                if intersecao_adjacente not in lista_intersecoes_brancas and intersecao_adjacente not in lista_intersecoes_pretas and intersecao_adjacente not in adjacentes_diferentes:
-                    adjacentes_diferentes += (intersecao_adjacente,)
+                if intersecao_adjacente not in lista_intersecoes_brancas and intersecao_adjacente not in lista_intersecoes_pretas:
+                    if intersecao_adjacente not in adjacentes_diferentes:
+                        adjacentes_diferentes += (intersecao_adjacente,)
         else: 
             adjacentes = obtem_intersecoes_adjacentes(intersecao,obtem_intersecao_maxima(goban))
             for intersecao_adjacente in adjacentes:
-                if intersecao_adjacente in lista_intersecoes_brancas or intersecao_adjacente in lista_intersecoes_pretas and intersecao_adjacente not in adjacentes_diferentes:
-                    adjacentes_diferentes += (intersecao_adjacente,)     
+                if intersecao_adjacente in lista_intersecoes_brancas or intersecao_adjacente in lista_intersecoes_pretas:
+                    if intersecao_adjacente not in adjacentes_diferentes:
+                        adjacentes_diferentes += (intersecao_adjacente,)     
     return ordena_intersecoes(adjacentes_diferentes)    
 
 def jogada(goban,intersecao,pedra):
@@ -455,19 +463,43 @@ def turno_jogador(goban,pedra,goban_ilegal):
         escolha = input(f"Escreva uma intersecao ou 'P' para passar [{pedra_para_str(pedra)}]:")
         if escolha == "P":
             return False
-        intersecao = str_para_intersecao(escolha)
-        if eh_intersecao_valida(goban,intersecao):
-            if eh_jogada_legal(goban,intersecao,pedra,goban_ilegal):
-                jogada(goban,intersecao,pedra)
-                return True
+        if len(escolha) in[2,3]:
+            if escolha[0] in stringletras and escolha[1:] not in stringletras:
+                intersecao = str_para_intersecao(escolha)
+                if eh_intersecao_valida(goban,intersecao):
+                    if eh_jogada_legal(goban,intersecao,pedra,goban_ilegal):
+                        jogada(goban,intersecao,pedra)
+                        return True
 
 def go(dimensao,tuplo_brancas,tuplo_pretas):
     if type(dimensao) != int or dimensao not in [9,13,19]:
         raise ValueError ("go: argumentos invalidos")
     if type(tuplo_brancas)!= tuple or type(tuplo_pretas)!= tuple:
         raise ValueError ("go: argumentos invalidos")
-    if cria_goban(dimensao,tuplo_brancas,tuplo_pretas) == 'cria_goban: argumentos invalidos':
-        raise ValueError ("go: argumentos invalidos")
+    for intersecao in tuplo_brancas:
+        if type(intersecao) != str and type(intersecao) != tuple:
+            raise ValueError ("go: argumentos invalidos")
+        if len(intersecao) not in [2,3]:
+            raise ValueError ("go: argumentos invalidos")
+        if type(intersecao) == str:
+            intersecao = str_para_intersecao(intersecao)
+        if eh_intersecao(intersecao) and intersecao not in tuplo_pretas and intersecao:
+            if obtem_lin(intersecao) > dimensao or stringletras.index(obtem_col(intersecao)) > dimensao:
+                raise ValueError ("go: argumentos invalidos")
+        else:
+            raise ValueError ("go: argumentos invalidos")
+    for intersecao in tuplo_pretas:
+        if type(intersecao) != str and type(intersecao) != tuple:
+            raise ValueError ("go: argumentos invalidos")
+        if len(intersecao) not in [2,3]:
+            raise ValueError ("go: argumentos invalidos")
+        if type(intersecao) == str:
+            intersecao = str_para_intersecao(intersecao)
+        if eh_intersecao(intersecao) and intersecao not in tuplo_brancas:
+            if obtem_lin(intersecao) > dimensao or stringletras.index(obtem_col(intersecao)) > dimensao:
+                raise ValueError ("go: argumentos invalidos")
+        else:
+            raise ValueError ("go: argumentos invalidos")
     goban = cria_goban(dimensao,tuplo_brancas,tuplo_pretas)
     for intersecao in tuplo_brancas:
         if type(intersecao) == str:
