@@ -1,9 +1,11 @@
 global stringletras
+global goban_antigos
 stringletras = "ABCDEFGHIJKLMNOPQRS"
+goban_antigos = []
 
 def cria_intersecao(coluna,linha):
     """
-    Recebe um caracter e um inteiro correspondentes à coluna col e à linha lin e devolve a interseção correspondente.
+    Recebe um caracter e um inteiro correspondentes à coluna (argumento 1) e à linha (argumento 2) e devolve a interseção correspondente.
     O construtor verifica a validade dos seus argumentos, gerando um ValueError com a mensagem 'cria_intersecao: argumentos invalidos' 
     caso os seus argumentos não sejam válidos. 
 
@@ -12,9 +14,9 @@ def cria_intersecao(coluna,linha):
     :return: Tuple
     """
 
-    if type(coluna) != str or len(coluna)!=1 or coluna not in stringletras:
+    if type(coluna) != str or len(coluna)!=1 or coluna not in stringletras:     #Verifica se o argumento 1 é válido, isto é, se é uma só letra de A a S (maiúsculo).
         raise ValueError ("cria_intersecao: argumentos invalidos")
-    if type(linha) != int or linha < 1 or linha > 19:
+    if type(linha) != int or linha < 1 or linha > 19:                           #Verifica se o argumento 2 é válido, isto é, se é um número de 1 a 19.
         raise ValueError ("cria_intersecao: argumentos invalidos")
     return (coluna,linha)
 
@@ -46,12 +48,12 @@ def eh_intersecao(intersecao):
     :return: Boolean
     """
 
-    if type(intersecao) == tuple:
-        if len(intersecao) == 2:
+    if type(intersecao) == tuple:                                       #Verifica se o argumento é válido, isto é, se é um tuplo
+        if len(intersecao) == 2:                                        #Verifica se o tuplo é válido, isto é, se tem dois elementos
             coluna = obtem_col(intersecao)
-            if type(coluna) == str and coluna in stringletras:
+            if type(coluna) == str and coluna in stringletras:          #Verifica se o primeiro elemento é uma letra maiúscula de A a S
                 linha = obtem_lin(intersecao)
-                if type(linha)== int and linha >= 1 and linha <= 19:
+                if type(linha)== int and linha >= 1 and linha <= 19:    #Verifica se o segundo elemento é um número de 1 a 19
                     return True
     return False
 
@@ -64,14 +66,14 @@ def intersecoes_iguais(i1,i2):
     :return: Boolean
     """
 
-    if eh_intersecao(i1) and eh_intersecao(i2):
-        if i1 == i2:
+    if eh_intersecao(i1) and eh_intersecao(i2):                         #Verifica se ambos os argumentos são interseções
+        if i1 == i2:                                                    #Verifica se ambas as interseções são iguais
             return True
     return False
 
 def intersecao_para_str(intersecao):
     """
-    Devolve a cadeia de caracteres que representa o seu argumento.
+    Devolve a cadeia de caracteres que representa o seu argumento (intersecao).
 
     :param intersecao: Tuple
     :return: String
@@ -79,7 +81,7 @@ def intersecao_para_str(intersecao):
 
     coluna = obtem_col(intersecao)
     linha = obtem_lin(intersecao)
-    return f"{coluna}{linha}"
+    return f"{coluna}{linha}"                                           
 
 def str_para_intersecao(string):
     """
@@ -91,7 +93,7 @@ def str_para_intersecao(string):
 
     coluna = string[0]
     linha = int(string[1:])
-    return (coluna,linha)
+    return cria_intersecao(coluna,linha)
 
 def obtem_intersecoes_adjacentes(intersecao,intersecao_max):
     """
@@ -110,17 +112,17 @@ def obtem_intersecoes_adjacentes(intersecao,intersecao_max):
     linha_max = obtem_lin(intersecao_max)
     if coluna != "A":
         coluna_adjacente = stringletras[stringletras.index(coluna)-1]
-        adjacentes += ((coluna_adjacente,linha),)
+        adjacentes += (cria_intersecao(coluna_adjacente,linha),)            #Obtém a interseção à esquerda.
     if coluna != coluna_max:
         coluna_adjacente = stringletras[stringletras.index(coluna)+1]
-        adjacentes += ((coluna_adjacente,linha),)
+        adjacentes += (cria_intersecao(coluna_adjacente,linha),)            #Obtém a interseção à direita.
     if linha != 1:
         linha_adjacente = linha - 1
-        adjacentes += ((coluna,linha_adjacente),)
+        adjacentes += (cria_intersecao(coluna,linha_adjacente),)            #Obtém a interseção embaixo.
     if linha != linha_max:
         linha_adjacente = linha + 1
-        adjacentes += ((coluna,linha_adjacente),)
-    return ordena_intersecoes(adjacentes)
+        adjacentes += (cria_intersecao(coluna,linha_adjacente),)            #Obtém a interseção em cima.
+    return ordena_intersecoes(adjacentes)                                   
 
 def ordenador(intersecao):
     """
@@ -130,7 +132,7 @@ def ordenador(intersecao):
     :return: Tuple
     """
 
-    return intersecao[1], intersecao[0]
+    return obtem_lin(intersecao), obtem_col(intersecao)                     #Ordena as interseções primeiramente pela linha (número) e só depois pelas letras (colunas)
 
 def ordena_intersecoes(tuplo_intersecoes):
     """
@@ -141,7 +143,7 @@ def ordena_intersecoes(tuplo_intersecoes):
     :return: Tuple
     """
 
-    return tuple(sorted(tuplo_intersecoes, key = ordenador))
+    return tuple(sorted(tuplo_intersecoes, key = ordenador))                #Ordena as interseções do seu argumento de acordo com a ordem de leitura do tabuleiro de Go (esquerda,direita,baixo,cima)
 
 def cria_pedra_branca():
     """
@@ -178,7 +180,7 @@ def eh_pedra(arg):
     :return: Boolean
     """
 
-    if arg in ["pedra branca", "pedra preta", "pedra neutra"]:
+    if arg in ["pedra branca", "pedra preta", "pedra neutra", "X", "O", "."]:           #Verifica se o argumento é uma pedra, seja ela de um jogador ou neutra
         return True
     return False
 
@@ -190,7 +192,7 @@ def eh_pedra_branca(pedra):
     :return: Boolean
     """
 
-    if pedra == "pedra branca" or pedra == "O":
+    if pedra == "pedra branca" or pedra == "O":                                         #Verifica se o argumento é uma pedra branca
         return True
     return False
 
@@ -202,7 +204,19 @@ def eh_pedra_preta(pedra):
     :return: Boolean
     """
 
-    if pedra == "pedra preta" or pedra == "X":
+    if pedra == "pedra preta" or pedra == "X":                                          #Verifica se o argumento é uma pedra preta
+        return True
+    return False
+
+def eh_pedra_neutra(pedra):
+    """
+    Devolve True caso a pedra (argumento) seja netra (de nenhum jogador) e False caso contrário.
+
+    :param pedra: String
+    :return: Boolean
+    """
+
+    if pedra == "pedra neutra" or pedra == ".":                                         #Verifica se o argumento é uma pedra neutra
         return True
     return False
 
@@ -215,8 +229,13 @@ def pedras_iguais(pedra1, pedra2):
     :return: Boolean
     """
 
-    if pedra1 == pedra2 and eh_pedra(pedra1):
-        return True
+    if eh_pedra(pedra1) and eh_pedra(pedra2):                                           #Verifica se ambos os argumentos são pedras 
+        if eh_pedra_branca(pedra1) and eh_pedra_branca(pedra2):                         #Verifica se ambos os argumentos são pedras brancas
+            return True
+        elif eh_pedra_preta(pedra1) and eh_pedra_preta(pedra2):                         #Verifica se ambos os argumentos são pedras pretas
+            return True
+        elif eh_pedra_neutra(pedra1) and eh_pedra_neutra(pedra2):                       #Verifica se ambos os argumentos são pedras neutras
+            return True
     return False
 
 def pedra_para_str(pedra):
@@ -259,7 +278,7 @@ def cria_goban_vazio(num):
     :return: List
     """
 
-    if type(num) == int and num in [9,13,19]:
+    if type(num) == int and num in [9,13,19]:                           #Verifica se o argumento é válido, isto é, se é um inteiro e se corresponde a 9, 13 ou 19
         return [num,[],[]]
     else:
         raise ValueError ("cria_goban_vazio: argumento invalido")
@@ -270,7 +289,7 @@ def cria_goban(num,tuplo_intersecoes_brancas,tuplo_intersecoes_pretas):
     ocupadas por pedras brancas e as interseções do tuplo tuplo_intersecoes_pretas ocupadas por 
     pedras pretas. O construtor verifica a validade dos argumentos, gerando um ValueError com a 
     mensagem 'cria_goban: argumentos invalidos' caso os seus argumentos não sejam válidos. 
-    Considera-se que um goban pode ser de dimens ̃ao 9x9, 13x13 ou 19x19.
+    Considera-se que um goban pode ser de dimensão 9x9, 13x13 ou 19x19.
 
     :param num: Integer
     :param tuplo_intersecoes_brancas: Tuple
@@ -280,40 +299,39 @@ def cria_goban(num,tuplo_intersecoes_brancas,tuplo_intersecoes_pretas):
 
     lista_intersecoes_brancas = []
     lista_intersecoes_pretas = []
-    if type(num) != int or num not in [9,13,19]:
+    if type(num) != int or num not in [9,13,19]:                                                                                        #Verifica se o primeiro argumento é válido, isto é, se é um inteiro e se corresponde a 9, 13 ou 19
         raise ValueError ("cria_goban: argumentos invalidos")
-    if type(tuplo_intersecoes_brancas) != tuple or type(tuplo_intersecoes_pretas) != tuple:
+    if type(tuplo_intersecoes_brancas) != tuple or type(tuplo_intersecoes_pretas) != tuple:                                             #Verifica se o segundo e o terceiro argumento são válidos, isto é, se correspondem a tuplos
         raise ValueError ("cria_goban: argumentos invalidos")
     for intersecao in tuplo_intersecoes_brancas:
-        if type(intersecao) != str and type(intersecao) != tuple:
+        if type(intersecao) != str and type(intersecao) != tuple:                                                                       #Verifica se os elementos dentro do tuplo do segundo argumento são válidos, isto é, se são interseções
             raise ValueError ("cria_goban: argumentos invalidos")
         if len(intersecao) not in [2,3]:
             raise ValueError ("cria_goban: argumentos invalidos")
         if type(intersecao) == str:
             intersecao = str_para_intersecao(intersecao)
         if eh_intersecao(intersecao) and intersecao not in tuplo_intersecoes_pretas and intersecao not in lista_intersecoes_brancas:
-            if obtem_lin(intersecao) > num or stringletras.index(obtem_col(intersecao)) > num:
+            if obtem_lin(intersecao) > num or stringletras.index(obtem_col(intersecao))+1 > num:
                 raise ValueError ("cria_goban: argumentos invalidos")
             else:
-                lista_intersecoes_brancas += [intersecao,]
+                lista_intersecoes_brancas += [intersecao,]                                                                              #Se os elementos dentro do tuplo do segundo argumento forem todos válidos, adiciona estes elementos à lista de interseções que têm pedras do jogador branco
         else:
             raise ValueError ("cria_goban: argumentos invalidos")
     for intersecao in tuplo_intersecoes_pretas:
-        if type(intersecao) != str and type(intersecao) != tuple:
+        if type(intersecao) != str and type(intersecao) != tuple:                                                                       #Verifica se os elementos dentro do tuplo do terceiro argumento são válidos, isto é, se são interseções
             raise ValueError ("cria_goban: argumentos invalidos")
         if len(intersecao) not in [2,3]:
             raise ValueError ("cria_goban: argumentos invalidos")
         if type(intersecao) == str:
             intersecao = str_para_intersecao(intersecao)
         if eh_intersecao(intersecao) and intersecao not in tuplo_intersecoes_brancas and intersecao not in lista_intersecoes_pretas:
-            if obtem_lin(intersecao) > num or stringletras.index(obtem_col(intersecao)) > num:
+            if obtem_lin(intersecao) > num or stringletras.index(obtem_col(intersecao))+1 > num:
                 raise ValueError ("cria_goban: argumentos invalidos")
             else:
-                lista_intersecoes_pretas += [intersecao,]
+                lista_intersecoes_pretas += [intersecao,]                                                                                #Se os elementos dentro do tuplo do segundo argumento forem todos válidos, adiciona estes elementos à lista de interseções que têm pedras do jogador branco
         else:
             raise ValueError ("cria_goban: argumentos invalidos")
-    goban = [num,lista_intersecoes_brancas,lista_intersecoes_pretas]
-    return goban
+    return [num,lista_intersecoes_brancas,lista_intersecoes_pretas]
 
 def cria_copia_goban(goban):
     """
@@ -323,9 +341,9 @@ def cria_copia_goban(goban):
     :return: List
     """
 
-    num = goban[0]
-    intersecoes_brancas = goban[1].copy()
-    intersecoes_pretas = goban[2].copy()
+    num = obtem_dimensao_goban(goban)
+    intersecoes_brancas = obtem_pedras_brancas(goban).copy()
+    intersecoes_pretas = obtem_pedras_pretas(goban).copy()
     return [num,intersecoes_brancas,intersecoes_pretas]
 
 def obtem_ultima_intersecao(goban):
@@ -336,9 +354,9 @@ def obtem_ultima_intersecao(goban):
     :return: Tuple
     """
 
-    num = goban[0]
+    num = obtem_dimensao_goban(goban)
     letra = stringletras[num-1]
-    return (letra,num)
+    return cria_intersecao(letra,num)
 
 def obtem_pedra(goban,intersecao):
     """
@@ -350,8 +368,8 @@ def obtem_pedra(goban,intersecao):
     :return: String
     """
 
-    intersecoes_brancas = goban[1]
-    intersecoes_pretas = goban[2]
+    intersecoes_brancas = obtem_pedras_brancas(goban)
+    intersecoes_pretas = obtem_pedras_pretas(goban)
     if intersecao in intersecoes_brancas:
         return "O"
     elif intersecao in intersecoes_pretas:
@@ -375,11 +393,11 @@ def obtem_cadeia(goban,intersecao):
     porvisitar = [intersecao,]
     visitadas = []
     cadeia = (intersecao,)
-    while len(porvisitar) != 0:
+    while len(porvisitar) != 0:                     #Enquanto houver interseções por visitar, este loop continua a correr
         intersecao_visitada = porvisitar[0]
         adjacentes = obtem_intersecoes_adjacentes(intersecao_visitada,intersecao_max)
         for intersecao_adjacente in adjacentes:
-            if obtem_pedra(goban,intersecao_adjacente) == simbolo_cor and (intersecao_adjacente not in cadeia):
+            if pedras_iguais(obtem_pedra(goban,intersecao_adjacente),simbolo_cor) and intersecao_adjacente not in cadeia:   #Se alguma das interseções adjacentes possuir uma pedra do mesmo jogador da interseção do segundo argumento, ou se forem ambas neutras, esta interseção é adicionada à lista de porvisitar (pois precisamos de analisar as suas adjacentes) e à cadeia
                 porvisitar += [intersecao_adjacente,]
                 cadeia += (intersecao_adjacente,)
         visitadas += [intersecao_visitada,]
@@ -397,8 +415,8 @@ def coloca_pedra(goban,intersecao,pedra):
     :return: List
     """
 
-    pedras_brancas = goban[1]
-    pedras_pretas = goban[2]
+    pedras_brancas = obtem_pedras_brancas(goban)
+    pedras_pretas = obtem_pedras_pretas(goban)
     if eh_pedra_branca(pedra):
         if intersecao in pedras_pretas:
             remove_pedra(goban,intersecao)
@@ -418,16 +436,11 @@ def remove_pedra(goban,intersecao):
     :param intersecao: Tuple
     :return: List
     """
-
-    if obtem_pedra(goban,intersecao)=="O":
-        num = goban [0]
-        pedras_brancas = goban[1]
+    pedras_brancas = obtem_pedras_brancas(goban)
+    pedras_pretas = obtem_pedras_pretas(goban)
+    if eh_pedra_branca(obtem_pedra(goban,intersecao)):
         pedras_brancas.remove(intersecao)
-        pedras_pretas = goban[2]
-    else:
-        num = goban [0]
-        pedras_brancas = goban[1]
-        pedras_pretas = goban[2]
+    elif eh_pedra_preta(obtem_pedra(goban,intersecao)):
         pedras_pretas.remove(intersecao)
     return goban
 
@@ -442,7 +455,7 @@ def remove_cadeia(goban,cadeia):
     """
 
     for intersecao in cadeia:
-        goban = remove_pedra(goban,intersecao)
+        remove_pedra(goban,intersecao)
     return goban
 
 def eh_goban(arg):
@@ -454,33 +467,34 @@ def eh_goban(arg):
     :return: Boolean
     """
 
-    if type(arg) not in (tuple,list,dict,set):
+    if type(arg) != list:                                                           #Verifica se o argumento é válido, isto é, se é uma lista
         return False
-    if len(arg) == 3:      
-        num = arg[0]
-        lista_intersecoes_brancas = arg[1]
-        lista_intersecoes_pretas = arg[2]
-        if type(num) == int and num in [9,13,19]:
-            if type(lista_intersecoes_brancas) == list:
+    if len(arg) == 3:                                                               #Verifica se o argumento corresponde a uma lista de 3 elementos, tal como o TAD Goban
+        num = obtem_dimensao_goban(arg)
+        lista_intersecoes_brancas = obtem_pedras_brancas(arg)
+        lista_intersecoes_pretas = obtem_pedras_pretas(arg)
+        if type(num) == int and num in [9,13,19]:                                   #Verifica se o 1º elemento do argumento é uma dimensão de um tabuleiro de Go, isto é, se é um inteiro igual a 9,13 ou 19
+            if type(lista_intersecoes_brancas) == list:                             #Verifica se o 2º elemento do argumento é uma lista 
                 if len(lista_intersecoes_brancas) != 0:
                     for intersecao in lista_intersecoes_brancas:
-                        if eh_intersecao(intersecao):
-                            if obtem_lin(intersecao) <= num:
-                                if type(lista_intersecoes_pretas) == list:
-                                    if len(lista_intersecoes_pretas) != 0:
-                                        for intersecao in lista_intersecoes_pretas:
-                                            if eh_intersecao(intersecao):
-                                                if obtem_lin(intersecao) <= num:
-                                                    return True
-                                    else:
-                                        return True
+                        if eh_intersecao(intersecao):                               #Verifica se os elementos dentro do 2º elemento do argumento correspondem a interseções válidas
+                            if intersecao not in lista_intersecoes_pretas:    
+                                if obtem_lin(intersecao) <= num:
+                                    if type(lista_intersecoes_pretas) == list:      #Verifica se o 3º elemento é uma lista
+                                        if len(lista_intersecoes_pretas) != 0:
+                                            for intersecao in lista_intersecoes_pretas:
+                                                if eh_intersecao(intersecao):       #Verifica se os elementos dentro desta lista são interseções
+                                                    if obtem_lin(intersecao) <= num:
+                                                        return True
+                                        else:
+                                            return True
                 else:
-                    if type(lista_intersecoes_pretas) == list:
+                    if type(lista_intersecoes_pretas) == list:                      #Verifica se o 3º elemento é uma lista
                         if len(lista_intersecoes_pretas) != 0:
-                                        for intersecao in lista_intersecoes_pretas:
-                                            if eh_intersecao(intersecao):
-                                                if obtem_lin(intersecao) <= num:
-                                                    return True
+                            for intersecao in lista_intersecoes_pretas:
+                                if eh_intersecao(intersecao):                       #Verifica se os elementos dentro desta lista são interseções
+                                    if obtem_lin(intersecao) <= num:
+                                        return True
                         return True
     return False
 
@@ -496,10 +510,10 @@ def eh_intersecao_valida(goban,intersecao):
 
     if eh_goban(goban):
         if eh_intersecao(intersecao):
-            num = goban[0]
+            num = obtem_dimensao_goban(goban)
             coluna = obtem_col(intersecao)
             linha = obtem_lin(intersecao)
-            if num >= stringletras.index(coluna) and num >= linha:
+            if num >= stringletras.index(coluna)+1>=1 and num >= linha >= 1:
                 return True
     return False
 
@@ -512,17 +526,14 @@ def gobans_iguais(goban1,goban2):
     :return: Boolean
     """
     if eh_goban(goban1) and eh_goban(goban2):
-        if goban1 == goban2:
+        goban1_dimensao = goban1[0]
+        lista_intersecoes_brancas_goban1 = ordena_intersecoes(tuple(intersecao_branca_goban1) for intersecao_branca_goban1 in goban1[1])
+        lista_intersecoes_pretas_goban1 = ordena_intersecoes(tuple(intersecao_preta_goban1) for intersecao_preta_goban1 in goban1[2])
+        goban2_dimensao = goban2[0]
+        lista_intersecoes_brancas_goban2 = ordena_intersecoes(tuple(intersecao_branca_goban2) for intersecao_branca_goban2 in goban2[1])
+        lista_intersecoes_pretas_goban2 = ordena_intersecoes(tuple(intersecao_preta_goban2) for intersecao_preta_goban2 in goban2[2])
+        if goban1_dimensao == goban2_dimensao and lista_intersecoes_brancas_goban1 == lista_intersecoes_brancas_goban2 and lista_intersecoes_pretas_goban1 == lista_intersecoes_pretas_goban2:
             return True
-        else:
-            goban1_dimensao = goban1[0]
-            lista_intersecoes_brancas_goban1 = ordena_intersecoes(tuple(intersecao_branca_goban1) for intersecao_branca_goban1 in goban1[1])
-            lista_intersecoes_pretas_goban1 = ordena_intersecoes(tuple(intersecao_preta_goban1) for intersecao_preta_goban1 in goban1[2])
-            goban2_dimensao = goban2[0]
-            lista_intersecoes_brancas_goban2 = ordena_intersecoes(tuple(intersecao_branca_goban2) for intersecao_branca_goban2 in goban2[1])
-            lista_intersecoes_pretas_goban2 = ordena_intersecoes(tuple(intersecao_preta_goban2) for intersecao_preta_goban2 in goban2[2])
-            if goban1_dimensao == goban2_dimensao and lista_intersecoes_brancas_goban1 == lista_intersecoes_brancas_goban2 and lista_intersecoes_pretas_goban1 == lista_intersecoes_pretas_goban2:
-                return True
     return False
 
 def goban_para_str(goban):
@@ -533,9 +544,7 @@ def goban_para_str(goban):
     :return: String
     """
 
-    num = goban[0]
-    lista_pedras_brancas = goban[1]
-    lista_pedras_pretas = goban[2]
+    num = obtem_dimensao_goban(goban)
     string = "   "
     for coluna in range (0,num-1):
         string += f"{stringletras[coluna]} "
@@ -546,9 +555,9 @@ def goban_para_str(goban):
         if linha>= 10:
             string += f"{linha} "
             for coluna in range(num):
-                if (stringletras[coluna],linha) in lista_pedras_brancas:
+                if eh_pedra_branca(obtem_pedra(goban,cria_intersecao(stringletras[coluna],linha))):
                     string += "O "
-                elif (stringletras[coluna],linha) in lista_pedras_pretas:
+                elif eh_pedra_preta(obtem_pedra(goban,cria_intersecao(stringletras[coluna],linha))):
                     string += "X "
                 else:
                     string += ". "
@@ -556,9 +565,9 @@ def goban_para_str(goban):
         else:
             string += f" {linha} "
             for coluna in range(num):
-                if (stringletras[coluna],linha) in lista_pedras_brancas:
+                if eh_pedra_branca(obtem_pedra(goban,cria_intersecao(stringletras[coluna],linha))):
                     string += "O "
-                elif (stringletras[coluna],linha) in lista_pedras_pretas:
+                elif eh_pedra_preta(obtem_pedra(goban,cria_intersecao(stringletras[coluna],linha))):
                     string += "X "
                 else:
                     string += ". "
@@ -577,26 +586,24 @@ def obtem_territorios(goban):
     :return: Tuple
     """
 
-    num = goban[0]
-    lista_intersecoes_brancas = goban[1]
-    lista_intersecoes_pretas = goban[2]
+    num = obtem_dimensao_goban(goban)
     porvisitar_nao_ordenado = ()
     porvisitar = []
     territorios = ()
     for coluna in range(0,num):
         coluna = stringletras[coluna]
         for linha in range(1,num+1):
-            intersecao = (coluna,linha)
-            if intersecao not in lista_intersecoes_brancas and intersecao not in  lista_intersecoes_pretas:
-                porvisitar_nao_ordenado += (intersecao,)
+            intersecao = cria_intersecao(coluna,linha)
+            if not eh_pedra_jogador(obtem_pedra(goban,intersecao)):
+                porvisitar_nao_ordenado += (intersecao,)                    #Adiciona todas as interseções livres do goban à lista porvisitar_nao_ordenado
     for intersecao_ordenada in ordena_intersecoes(porvisitar_nao_ordenado):
-        porvisitar += [intersecao_ordenada,]
-    while len(porvisitar) != 0:
+        porvisitar += [intersecao_ordenada,]                                #Adiciona as interseções por ordem de leitura de Go à lista porvisitar
+    while len(porvisitar) != 0:                                             #Enquanto houver interseções por visitar, este loop corre
         intersecao_visitada = porvisitar[0]
-        intersecoes_cadeia = obtem_cadeia(goban,intersecao_visitada)
+        intersecoes_cadeia = obtem_cadeia(goban,intersecao_visitada)        #Obtém a cadeia da interseção que está a ser vista
         for intersecao in intersecoes_cadeia:
-            porvisitar.remove(intersecao)
-        territorios += (intersecoes_cadeia,)
+            porvisitar.remove(intersecao)                                   #Remove todas as interseções da cadeia daa lista porvisitar para não observar-mos a mesma cadeia duas vezes
+        territorios += (intersecoes_cadeia,)                                #Adiciona a cadeia ao tuplo territórios
     return territorios
 
 def obtem_adjacentes_diferentes(goban,tuplo_intersecoes):
@@ -610,20 +617,18 @@ def obtem_adjacentes_diferentes(goban,tuplo_intersecoes):
     :return: Tuple
     """
 
-    lista_intersecoes_brancas = goban[1]
-    lista_intersecoes_pretas = goban[2]
     adjacentes_diferentes = ()
     for intersecao in tuplo_intersecoes:
-        if intersecao in lista_intersecoes_brancas or intersecao in lista_intersecoes_pretas:
+        if eh_pedra_jogador(obtem_pedra(goban,intersecao)):
             adjacentes = obtem_intersecoes_adjacentes(intersecao,obtem_ultima_intersecao(goban))
             for intersecao_adjacente in adjacentes:
-                if intersecao_adjacente not in lista_intersecoes_brancas and intersecao_adjacente not in lista_intersecoes_pretas:
+                if not eh_pedra_jogador(obtem_pedra(goban,intersecao_adjacente)):   #Se a intersecao visitada for de um jogador, então queremos retornar as interseções adjacentes que estão vazias
                     if intersecao_adjacente not in adjacentes_diferentes:
                         adjacentes_diferentes += (intersecao_adjacente,)
         else: 
             adjacentes = obtem_intersecoes_adjacentes(intersecao,obtem_ultima_intersecao(goban))
             for intersecao_adjacente in adjacentes:
-                if intersecao_adjacente in lista_intersecoes_brancas or intersecao_adjacente in lista_intersecoes_pretas:
+                if eh_pedra_jogador(obtem_pedra(goban,intersecao_adjacente)):       #Caso contrário, caso a interseção visitada seja livre, queremos adicionar as interseções adjacentes que estiverem ocupadas pelos jogadores
                     if intersecao_adjacente not in adjacentes_diferentes:
                         adjacentes_diferentes += (intersecao_adjacente,)     
     return ordena_intersecoes(adjacentes_diferentes)    
@@ -645,13 +650,13 @@ def jogada(goban,intersecao,pedra):
     adjacentes = obtem_intersecoes_adjacentes(intersecao,obtem_ultima_intersecao(goban))
     for intersecao_adjacente in adjacentes:
         adjacentes_vazias = ()
-        if obtem_pedra(goban,intersecao_adjacente) not in [pedra_para_str(pedra),"."]:
+        if obtem_pedra(goban,intersecao_adjacente) not in [pedra_para_str(pedra),"."]:  #Se as adjacentes forem ou livres, ou do outro jogador, então este loop corre, pois temos de verificar se temos de remover pedras que ficaram sem liberdade devido à jogada
             cadeia = obtem_cadeia(goban,intersecao_adjacente)
             adjacentes_diferentes = obtem_adjacentes_diferentes(goban,cadeia)
             for intersecao_adjacente_diferente in adjacentes_diferentes: 
-                if intersecao_adjacente_diferente != intersecao:
+                if not intersecoes_iguais(intersecao_adjacente_diferente,intersecao):
                     adjacentes_vazias += (intersecao_adjacente_diferente,)
-            if adjacentes_vazias == ():
+            if adjacentes_vazias == ():                                     #Se não houverem interseções vazias junto à cadeia do outro jogador, então essas pedras ficaram sem liberdades, logo têm de ser removidas
                 for intersecao_por_remover in cadeia:
                     if intersecao_por_remover not in porremover:
                         porremover += [intersecao_por_remover,]
@@ -673,7 +678,7 @@ def obtem_extremos(goban,cadeia):
     for intersecao in cadeia:
         adjacentes = obtem_intersecoes_adjacentes(intersecao,obtem_ultima_intersecao(goban))
         for intersecao_adjacente in adjacentes:
-            if obtem_pedra(goban,intersecao_adjacente) != obtem_pedra(goban,intersecao):
+            if not pedras_iguais(obtem_pedra(goban,intersecao_adjacente), obtem_pedra(goban,intersecao)):
                 if intersecao not in extremos:
                     extremos += [intersecao,]
     return extremos
@@ -686,10 +691,18 @@ def obtem_pedras_jogadores(goban):
     :param goban: List
     :return: Tuple
     """
-
-    lista_intersecoes_brancas = goban[1]
-    lista_intersecoes_pretas = goban[2]
-    return (len(lista_intersecoes_brancas),len(lista_intersecoes_pretas))
+    pedras_brancas = 0
+    pedras_pretas = 0
+    num = obtem_dimensao_goban(goban)
+    for linha in range(1,num+1):
+        for coluna in range(num):
+            letra = stringletras[coluna]
+            intersecao = cria_intersecao(letra,linha)
+            if eh_pedra_branca(obtem_pedra(goban,intersecao)):
+                pedras_brancas += 1
+            elif eh_pedra_preta(obtem_pedra(goban,intersecao)):
+                pedras_pretas += 1
+    return (pedras_brancas,pedras_pretas)
 
 def calcula_pontos(goban):
     """
@@ -700,17 +713,15 @@ def calcula_pontos(goban):
     :return: Tuple
     """
 
-    pontos_total_pedras = obtem_pedras_jogadores(goban)
-    pontos_branco = pontos_total_pedras[0]
-    pontos_preto = pontos_total_pedras[1]
+    pontos_branco, pontos_preto = obtem_pedras_jogadores(goban)[0],obtem_pedras_jogadores(goban)[1]
     if pontos_branco != 0 or pontos_preto != 0:
-        for territorio in obtem_territorios(goban):     #Território é de um jogador se a sua fronteira for ocupada apenas por pedras desse jogador
+        for territorio in obtem_territorios(goban):     #Verifica se o território é de um jogador, isto é, se a sua fronteira for ocupada apenas por pedras desse jogador
             fronteira = obtem_fronteira(goban,territorio)
             if fronteira_eh_jogador(goban,fronteira):
                 simbolo_territorio = obtem_pedra(goban,fronteira[0])
-                if simbolo_territorio  == "O":
+                if eh_pedra_branca(simbolo_territorio):
                     pontos_branco += len(territorio)
-                elif simbolo_territorio  == "X":
+                elif eh_pedra_preta(simbolo_territorio):
                     pontos_preto += len(territorio)
     return (pontos_branco,pontos_preto)
 
@@ -726,7 +737,7 @@ def obtem_fronteira(goban,territorio):
 
     fronteira = []
     extremos_territorio = obtem_extremos(goban,territorio)
-    adjacentes = obtem_adjacentes_diferentes(goban,extremos_territorio)
+    adjacentes = obtem_adjacentes_diferentes(goban,tuple(extremos_territorio))
     for intersecao_adjacente in adjacentes:
         if intersecao_adjacente not in fronteira:
             fronteira += [intersecao_adjacente,]
@@ -734,7 +745,7 @@ def obtem_fronteira(goban,territorio):
 
 def fronteira_eh_jogador(goban,fronteira):
     """
-    Função auxiliar que devolve True  se as pedras estão na fronteira de um 
+    Função auxiliar que devolve True se as pedras estão na fronteira de um 
     território são de um jogador e False se forem neutras.
 
     :param goban: List
@@ -746,7 +757,7 @@ def fronteira_eh_jogador(goban,fronteira):
     num_verificacoes = len(fronteira)
     verificacoes_feitas = 0
     for intersecao in fronteira:
-        if obtem_pedra(goban,intersecao) == simbolo_fronteira:
+        if pedras_iguais(obtem_pedra(goban,intersecao),simbolo_fronteira):
             verificacoes_feitas +=1 
     if verificacoes_feitas == num_verificacoes:
         return True
@@ -766,14 +777,18 @@ def eh_jogada_legal(goban,intersecao,pedra,goban_ilegal):
     :param goban_ilegal: List
     :return: Boolean
     """
-
     if not eh_intersecao(intersecao) or not eh_intersecao_valida(goban,intersecao) or not eh_goban(goban):
         return False
-    if obtem_pedra(goban,intersecao) != ".":
+    if eh_pedra_jogador(obtem_pedra(goban,intersecao)):
         return False
     goban_apos = jogada(cria_copia_goban(goban),intersecao,pedra)
     if gobans_iguais(goban_apos,goban_ilegal):
         return False
+    goban_adicionar_antigo = cria_goban(9,ordena_intersecoes(obtem_pedras_brancas(goban)),ordena_intersecoes(obtem_pedras_pretas(goban)))
+    goban_antigos.append(goban_adicionar_antigo)
+    for goban_antigo in goban_antigos:
+        if gobans_iguais(goban_apos,goban_antigo):
+            return False
     cadeia = obtem_cadeia(goban_apos,intersecao)
     extremos = obtem_extremos(goban_apos,cadeia)
     fronteira = []
@@ -781,14 +796,14 @@ def eh_jogada_legal(goban,intersecao,pedra,goban_ilegal):
     for intersecao_extremo in extremos:
         adjacentes = obtem_intersecoes_adjacentes(intersecao_extremo,obtem_ultima_intersecao(goban_apos))
         for intersecao_adjacente in adjacentes:
-            if obtem_pedra(goban_apos,intersecao_adjacente) != obtem_pedra(goban_apos,intersecao_extremo) and obtem_pedra(goban_apos,intersecao_adjacente) != "."  and intersecao_adjacente not in fronteira and intersecao_adjacente not in cadeia:
+            if not pedras_iguais(obtem_pedra(goban_apos,intersecao_adjacente),obtem_pedra(goban_apos,intersecao_extremo)) and eh_pedra_jogador(obtem_pedra(goban_apos,intersecao_adjacente))  and intersecao_adjacente not in fronteira and intersecao_adjacente not in cadeia:
                 verificacoes_feitas += 1
             if intersecao_adjacente not in fronteira and intersecao_adjacente not in cadeia:
                 fronteira += [intersecao_adjacente,]
     for intersecao_fronteira in fronteira:
         limite = len(obtem_intersecoes_adjacentes(intersecao_fronteira,obtem_ultima_intersecao(goban_apos))) 
         for intersecao_adjacente_fronteira in obtem_intersecoes_adjacentes(intersecao_fronteira,obtem_ultima_intersecao(goban_apos)):
-            if obtem_pedra(goban_apos,intersecao_adjacente_fronteira) == pedra_para_str(pedra):
+            if pedras_iguais(obtem_pedra(goban_apos,intersecao_adjacente_fronteira),pedra_para_str(pedra)):
                 limite -= 1
                 if limite == 0:
                     return True
@@ -822,14 +837,14 @@ def turno_jogador(goban,pedra,goban_ilegal):
         if escolha == "P":
             return False
         if len(escolha) == 2:
-            if escolha[0] in stringletras and escolha[1] not in stringletras:
+            if escolha[0] in stringletras and escolha[1] in ["1","2","3","4","5","6","7","8","9"]:
                 intersecao = str_para_intersecao(escolha)
                 if eh_intersecao_valida(goban,intersecao):
                     if eh_jogada_legal(goban,intersecao,pedra,goban_ilegal):
                         jogada(goban,intersecao,pedra)
                         return True
         if len(escolha) == 3:
-            if escolha[0] in stringletras and escolha[1] not in stringletras and escolha[2] not in stringletras:
+            if escolha[0] in stringletras and escolha[1] == "1" and escolha[2] in ["1","2","3","4","5","6","7","8","9","0"]:
                 intersecao = str_para_intersecao(escolha)
                 if eh_intersecao_valida(goban,intersecao):
                     if eh_jogada_legal(goban,intersecao,pedra,goban_ilegal):
@@ -857,73 +872,71 @@ def go(dimensao,tuplo_brancas,tuplo_pretas):
         raise ValueError ("go: argumentos invalidos")
     if type(tuplo_brancas)!= tuple or type(tuplo_pretas)!= tuple:
         raise ValueError ("go: argumentos invalidos")
-    for intersecao in tuplo_brancas:
-        if type(intersecao) != str and type(intersecao) != tuple:
-            raise ValueError ("go: argumentos invalidos")
-        if len(intersecao) not in [2,3]:
-            raise ValueError ("go: argumentos invalidos")
-        if type(intersecao) == str:
-            intersecao = str_para_intersecao(intersecao)
-        if eh_intersecao(intersecao) and intersecao not in tuplo_pretas and intersecao:
-            if obtem_lin(intersecao) > dimensao or stringletras.index(obtem_col(intersecao)) > dimensao:
+    if len(tuplo_brancas) != 0:
+        for intersecao in tuplo_brancas:
+            if type(intersecao) != str and type(intersecao) != tuple:
                 raise ValueError ("go: argumentos invalidos")
-        else:
-            raise ValueError ("go: argumentos invalidos")
-    for intersecao in tuplo_pretas:
-        if type(intersecao) != str and type(intersecao) != tuple:
-            raise ValueError ("go: argumentos invalidos")
-        if len(intersecao) not in [2,3]:
-            raise ValueError ("go: argumentos invalidos")
-        if type(intersecao) == str:
-            intersecao = str_para_intersecao(intersecao)
-        if eh_intersecao(intersecao) and intersecao not in tuplo_brancas:
-            if obtem_lin(intersecao) > dimensao or stringletras.index(obtem_col(intersecao)) > dimensao:
+            if len(intersecao) not in [2,3]:
                 raise ValueError ("go: argumentos invalidos")
-        else:
-            raise ValueError ("go: argumentos invalidos")
+            else:
+                if len(intersecao) == 2:
+                    if intersecao[0] not in stringletras or str(intersecao[1]) not in ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19"]: #Se for um tuplo, intersecao[1] vai corresponder a um número de 1 ou 2 algarismos, se for uma string, intersecao[1] vai corresponder a um número de 1 algarismo 
+                        raise ValueError ("go: argumentos invalidos")
+                else:
+                    if intersecao[0] not in stringletras or intersecao[1] != "1" or intersecao[2] not in ["1","2","3","4","5","6","7","8","9","0"]:
+                        raise ValueError ("go: argumentos invalidos")
+            if type(intersecao) == str:
+                intersecao = str_para_intersecao(intersecao)
+            if eh_intersecao(intersecao) and intersecao not in tuplo_pretas:
+                if obtem_lin(intersecao) > dimensao or stringletras.index(obtem_col(intersecao)) > dimensao:
+                    raise ValueError ("go: argumentos invalidos")
+            else:
+                raise ValueError ("go: argumentos invalidos")
+    if len(tuplo_pretas) != 0:
+        for intersecao in tuplo_pretas:
+            if type(intersecao) != str and type(intersecao) != tuple:
+                raise ValueError ("go: argumentos invalidos")
+            if len(intersecao) not in [2,3]:
+                raise ValueError ("go: argumentos invalidos")
+            else:
+                if len(intersecao) == 2:
+                    if intersecao[0] not in stringletras or str(intersecao[1]) not in ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19"]: #Se for um tuplo, intersecao[1] vai corresponder a um número de 1 ou 2 algarismos, se for uma string, intersecao[1] vai corresponder a um número de 1 algarismo 
+                        raise ValueError ("go: argumentos invalidos")
+                else:
+                    if intersecao[0] not in stringletras or intersecao[1] != "1" or intersecao[2] not in ["1","2","3","4","5","6","7","8","9","0"]:
+                        raise ValueError ("go: argumentos invalidos")
+            if type(intersecao) == str:
+                intersecao = str_para_intersecao(intersecao)
+            if eh_intersecao(intersecao) and intersecao not in tuplo_brancas:
+                if obtem_lin(intersecao) > dimensao or stringletras.index(obtem_col(intersecao)) > dimensao:
+                    raise ValueError ("go: argumentos invalidos")
+            else:
+                raise ValueError ("go: argumentos invalidos")
     goban = cria_goban(dimensao,tuplo_brancas,tuplo_pretas)
-    for intersecao in tuplo_brancas:
-        if type(intersecao) == str:
-            intersecao = str_para_intersecao(intersecao)
-        if not eh_intersecao(intersecao):
-            raise ValueError ("go: argumentos invalidos")
-        if not(eh_intersecao_valida(goban,intersecao)):
-            raise ValueError ("go: argumentos invalidos")
-        if intersecao in tuplo_pretas:
-            raise ValueError ("go: argumentos invalidos")
-    for intersecao in tuplo_pretas:
-        if type(intersecao) == str:
-            intersecao = str_para_intersecao(intersecao)
-        if not eh_intersecao(intersecao):
-            raise ValueError ("go: argumentos invalidos")
-        if not eh_intersecao_valida(goban,intersecao):
-            raise ValueError ("go: argumentos invalidos")
-        if intersecao in tuplo_brancas:
-            raise ValueError ("go: argumentos invalidos")
-    vezes_passadas = []
+    vezes_passadas = 0
     jogador = 0 
     pontos_brancos = calcula_pontos(goban)[0]
     pontos_pretos = calcula_pontos(goban)[1]
-    while len(vezes_passadas) != 2:
+    while vezes_passadas != 2:
         print(f"Branco (O) tem {pontos_brancos} pontos\nPreto (X) tem {pontos_pretos} pontos")
         print(goban_para_str(goban))
         if jogador == 0:
-            if turno_jogador(goban,cria_pedra_preta(),cria_goban_vazio(dimensao)) == False:
-                vezes_passadas += [1,]
+            if not turno_jogador(goban,cria_pedra_preta(),cria_goban_vazio(dimensao)):
+                vezes_passadas += 1
                 pontos_brancos = calcula_pontos(goban)[0]
                 pontos_pretos = calcula_pontos(goban)[1]
             else:
-                vezes_passadas = []
+                vezes_passadas = 0
                 pontos_brancos = calcula_pontos(goban)[0]
                 pontos_pretos = calcula_pontos(goban)[1]
             jogador += 1 
         else:
-            if turno_jogador(goban,cria_pedra_branca(),cria_goban_vazio(dimensao)) == False:
-                vezes_passadas += [1,]
+            if not turno_jogador(goban,cria_pedra_branca(),cria_goban_vazio(dimensao)):
+                vezes_passadas += 1
                 pontos_brancos = calcula_pontos(goban)[0]
                 pontos_pretos = calcula_pontos(goban)[1]
             else:
-                vezes_passadas = []
+                vezes_passadas = 0
                 pontos_brancos = calcula_pontos(goban)[0]
                 pontos_pretos = calcula_pontos(goban)[1]
             jogador = 0
@@ -933,3 +946,33 @@ def go(dimensao,tuplo_brancas,tuplo_pretas):
         return True
     else:
         return False
+    
+def obtem_pedras_brancas(goban):
+    """
+    Função auxiliar que devolve uma lista com as interseções do goban (argumento) que têm pedras brancas.
+
+    :param goban: List
+    :return: List
+    """
+    
+    return goban[1]
+
+def obtem_pedras_pretas(goban):
+    """
+    Função auxiliar que devolve uma lista com as interseções do goban (argumento) que têm pedras pretas.
+
+    :param goban: List
+    :return: Tuple
+    """
+
+    return goban[2]
+
+def obtem_dimensao_goban(goban):
+    """
+    Função auxiliar que devolve um inteiro que corresponde à dimensão do goban (argumento).
+
+    :param goban: List
+    :return: Integer
+    """
+
+    return goban[0]
